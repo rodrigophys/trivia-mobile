@@ -43,15 +43,31 @@ function check(user,canonical,extra){let u=norm(user);if(!u)return false;let set
 function jparse(s){try{return s?JSON.parse(s):{}}catch{return {}}}
 function key(kind,id){return kind+":"+id}
 function loadState(){
-  try{STATE=JSON.parse(localStorage.getItem("trivia_state_v1"))}catch{}
-  if(!STATE)STATE={q:{},a:{},attempts:[],seeded:false};
+  try{
+    const raw = window.localStorage ? localStorage.getItem("trivia_state_v1") : null;
+    if(raw) STATE = JSON.parse(raw);
+  }catch(e){
+    console.warn("Local progress storage unavailable:", e);
+    STATE = null;
+  }
+  if(!STATE) STATE={q:{},a:{},attempts:[],seeded:false};
+  if(!STATE.q) STATE.q={};
+  if(!STATE.a) STATE.a={};
+  if(!Array.isArray(STATE.attempts)) STATE.attempts=[];
   if(!STATE.seeded){
-    for(const r of DATA.learning_state||[]) STATE.q[r.question_id]={...r};
-    for(const r of DATA.association_learning_state||[]) STATE.a[r.association_id]={...r};
-    STATE.seeded=true; saveState();
+    for(const r of (DATA.learning_state||[])) STATE.q[r.question_id]={...r};
+    for(const r of (DATA.association_learning_state||[])) STATE.a[r.association_id]={...r};
+    STATE.seeded=true;
+    saveState();
   }
 }
-function saveState(){localStorage.setItem("trivia_state_v1",JSON.stringify(STATE))}
+function saveState(){
+  try{
+    if(window.localStorage) localStorage.setItem("trivia_state_v1",JSON.stringify(STATE));
+  }catch(e){
+    console.warn("Could not save local progress:", e);
+  }
+}
 function now(){return Date.now()}
 function parseDate(x){let t=Date.parse(x);return Number.isFinite(t)?t:0}
 function stats(){
@@ -151,9 +167,63 @@ function exportProgress(){
  let blob=new Blob([JSON.stringify(STATE,null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="trivia_mobile_progress.json";a.click();URL.revokeObjectURL(a.href);
 }
 async function init(){
- DATA=await fetch("data.json").then(r=>r.json());loadState();menu();
- if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+  app.innerHTML="<div class='dim'>Loading canon…</div>";
+
+  let response;
+  try{
+    response = await fetch("./data.json", {cache:"no-store"});
+  }catch(e){
+    throw new Error("Could not fetch data.json — "+(e && e.message ? e.message : e));
+  }
+
+  if(!response.ok){
+    throw new Error("data.json returned HTTP "+response.status);
+  }
+
+  let raw;
+  try{
+    raw = await response.text();
+  }catch(e){
+    throw new Error("Could not read data.json — "+(e && e.message ? e.message : e));
+  }
+
+  try{
+    DATA = JSON.parse(raw);
+  }catch(e){
+    throw new Error("data.json is not valid JSON — "+(e && e.message ? e.message : e));
+  }
+
+  if(!DATA || !Array.isArray(DATA.questions) || !Array.isArray(DATA.associations)){
+    throw new Error("data.json loaded, but its trivia structure is invalid.");
+  }
+
+  loadState();
+  menu();
+
+  // Offline support is optional. Never let a Safari service-worker problem
+  // prevent the actual trivia app from loading.
+  try{
+    if("serviceWorker" in navigator && location.protocol === "https:"){
+      setTimeout(function(){
+        try{
+          navigator.serviceWorker.register("./sw.js").catch(function(e){
+            console.warn("Service worker registration skipped:", e);
+          });
+        }catch(e){
+          console.warn("Service worker unavailable:", e);
+        }
+      }, 500);
+    }
+  }catch(e){
+    console.warn("Offline setup skipped:", e);
+  }
 }
-init().catch(e=>app.innerHTML="<h1>LOAD ERROR</h1><pre>"+esc(e)+"</pre>");
+
+init().catch(function(e){
+  console.error(e);
+  app.innerHTML="<h1>LOAD ERROR</h1>"+
+    "<div class='bad'>"+esc(e && e.message ? e.message : e)+"</div>"+
+    "<div class='section dim small'>Reload once after replacing index.html. If this message remains, send me exactly this new error text.</div>";
+});
 </script>
 </body></html>
