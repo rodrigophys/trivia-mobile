@@ -1,229 +1,90 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#030703">
-<link rel="manifest" href="manifest.webmanifest">
-<title>Trivia Trainer</title>
-<style>
-:root{--bg:#030703;--fg:#aaffaa;--dim:#669966;--line:#173b17;--white:#efffef;--bad:#ff7777}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:16px}
-#app{max-width:760px;margin:auto;padding:18px 14px 50px}
-h1{font-size:20px;color:var(--white);margin:0 0 4px}
-.dim{color:var(--dim)} .small{font-size:13px}.line{border-top:1px solid var(--line);margin:16px 0}
-.menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
-button{border:1px solid var(--line);background:#061006;color:var(--fg);padding:14px 12px;font:inherit;border-radius:4px;text-align:left}
-button:active{background:#0d1d0d}
-.q{font-size:19px;line-height:1.48;color:var(--white)} .es{margin-top:14px}
-.meta{text-transform:uppercase;color:var(--dim);font-size:13px;margin-bottom:14px}
-input{width:100%;background:#010301;border:1px solid var(--line);color:var(--white);padding:15px 12px;font:inherit;font-size:18px;border-radius:4px;outline:none}
-input:focus{border-color:#4c994c}
-.enter{width:100%;text-align:center;margin-top:8px}
-.good{color:#8dff8d;font-size:19px}.bad{color:var(--bad);font-size:19px}.answer{font-size:20px;color:var(--white);margin:7px 0 14px}
-.section{margin-top:18px}.section h3{font-size:13px;color:var(--dim);text-transform:uppercase;margin:0 0 8px}
-ul{padding-left:20px;margin:7px 0}li{margin:7px 0;line-height:1.35}.info{line-height:1.5;color:var(--white)}
-.top{display:flex;justify-content:space-between;gap:8px;align-items:center}.top button{padding:6px 8px}
-a{color:var(--fg)}
-.factgrid{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:14px}.factgrid b{color:var(--dim);font-weight:400;text-transform:uppercase}
-@media(max-width:480px){#app{padding:14px 12px 36px}.menu{grid-template-columns:1fr}.q{font-size:18px}}
-</style>
-</head>
-<body><div id="app">Loading canon...</div>
-<script>
-let DATA=null, STATE=null, current=null, currentMode="quick";
-const app=document.getElementById("app");
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#030703"><link rel="manifest" href="manifest.webmanifest"><title>Trivia Trainer · 2.4</title><style>
+:root{color-scheme:dark;--bg:#030703;--card:#081408;--edge:#28512b;--accent:#aaffaa;--text:#eeffee;--muted:#85ab85;--err:#ff9696}*{box-sizing:border-box}body{background:var(--bg);color:var(--accent);margin:0;font:15px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}main{max-width:900px;margin:auto;padding:19px 15px 60px}h1{font-size:25px;color:var(--text);margin:0}h2{font-size:20px;color:var(--text);margin:14px 0}h3{font-size:14px;color:var(--muted);margin:20px 0 7px}p{margin:9px 0}button,input,select,textarea{font:inherit;color:var(--accent);background:#061006;border:1px solid var(--edge);border-radius:6px;padding:12px}button{cursor:pointer;min-height:45px;text-align:left}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}button.primary{border-color:var(--accent);font-weight:bold}button:disabled{opacity:.4;cursor:not-allowed}input,select,textarea{width:100%;min-width:0;color:var(--text)}textarea{min-height:80px}label{display:block;margin:10px 0 5px;color:var(--muted)}.muted{color:var(--muted)}.small{font-size:12px}.status{padding:10px 0;color:var(--muted)}.line{border-top:1px solid var(--edge);margin:15px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{min-width:0}.kpis{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.kpi{border:1px solid var(--edge);padding:10px;flex:1;min-width:130px}.kpi strong{display:block;font-size:21px;color:var(--text)}.panel{background:var(--card);border:1px solid var(--edge);padding:14px;border-radius:8px;margin:12px 0;overflow-wrap:anywhere}.question{font-size:22px;color:var(--text);line-height:1.5;margin:20px 0}.correct{color:#7bff9d}.wrong{color:var(--err)}.answer{color:var(--text);font-size:20px}.tag{font-size:12px;border:1px solid var(--edge);padding:3px 7px;border-radius:20px;color:var(--muted)}.progress{color:var(--muted);font-size:12px}.section{margin:15px 0}.section b{color:var(--text)}.section li{margin:5px 0}.links a{color:var(--accent);margin-right:18px}.filtergrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.scroll{max-height:480px;overflow:auto}.listrow{width:100%;display:flex;gap:10px;padding:9px;border-bottom:1px solid var(--edge);align-items:flex-start;background:transparent}.listrow span{flex:1}.detail{white-space:pre-wrap}.pill{display:inline-block;padding:2px 6px;background:var(--edge);border-radius:3px}.hide{display:none!important}table{border-collapse:collapse;width:100%;color:var(--text);font-size:13px}td,th{padding:7px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}th{color:var(--accent)}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}@media(max-width:540px){.grid,.filtergrid{grid-template-columns:1fr}main{padding:14px 11px 44px}.question{font-size:19px}h1{font-size:21px}.kpi{min-width:110px}}
+</style></head><body><main id="app"><h1>TRIVIA TRAINER // 2.4</h1><p class="status">Loading terminal canon…</p></main><script>
+'use strict';
+const app=document.getElementById('app'),HIST='Historia de la Física',STORE='trivia_web_v2';let D,S,mode='',pool=[],current=null,session=null,filter={},promptUsed=false,tries=0;
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+const parse=x=>{try{return typeof x==='string'?JSON.parse(x||'{}'):(x||{})}catch{return {}}};
+const now=()=>Date.now(), date=x=>{if(!x)return Infinity;let t=Date.parse(x.includes('T')?x:x.replace(' ','T')+(x.endsWith('Z')?'':'Z'));return Number.isFinite(t)?t:Infinity};
+const qState=id=>S.q[id]||null, aState=id=>S.a[id]||null, regular=q=>q.category!==HIST, historic=q=>q.category===HIST;
+const prefs=()=>S.prefs||{},save=()=>{try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){console.warn('Storage error',e)}};
+function initialize(){let old;try{old=JSON.parse(localStorage.getItem(STORE))}catch{};S=old&&old.version===2?old:{version:2,q:{},a:{},attempts:[],association_attempts:[],customQuestions:[],customAssociations:[],sessions:[],prefs:{},seeded:false};
+if(!S.seeded){for(const r of D.learning_state||[])S.q[r.question_id]={...r};for(const r of D.association_learning_state||[])S.a[r.association_id]={...r};S.seeded=true;save()};
+D.questions=[...D.questions,...(S.customQuestions||[])];D.associations=[...D.associations,...(S.customAssociations||[])];
+}
+function mainNav(label='← Menu'){return `<div class="top"><button type="button" onclick="home()">${label}</button><span class="tag">TRIVIA TRAINER 2.4</span></div>`}
+function isDue(s,type='q'){return !!(s&&(type==='q'?s.next_review:s.due_at)&&date(type==='q'?s.next_review:s.due_at)<=now())}
+function metrics(hist=false){const qs=D.questions.filter(hist?historic:regular),ids=new Set(qs.map(q=>q.id)),ls=qs.map(q=>qState(q.id)),attempts=[...D.attempts,...S.attempts].filter(a=>ids.has(Number(a.question_id)));return {total:qs.length,unseen:ls.filter(s=>!s||!Number(s.times_seen)).length,due:ls.filter(s=>isDue(s)).length,weak:ls.filter(s=>s&&Number(s.mastery)<60).length,att:attempts.length,correct:attempts.filter(a=>Number(a.correct)===1).length}}
+function statTiles(m){return `<div class="kpis"><div class="kpi"><span>Bank</span><strong>${m.total}</strong></div><div class="kpi"><span>Unseen</span><strong>${m.unseen}</strong></div><div class="kpi"><span>Due</span><strong>${m.due}</strong></div><div class="kpi"><span>Weak</span><strong>${m.weak}</strong></div></div><p class="muted">All-time ${m.correct}/${m.att} · ${m.att?Math.round(100*m.correct/m.att):0}% correct</p>`}
+function home(){current=null;session=null;let m=metrics();app.innerHTML=`<h1>TRIVIA TRAINER // 2.4</h1><p class="muted">Terminal parity edition · offline-ready · progress on this device</p>${statTiles(m)}<div class="line"></div><div class="grid">
+<button onclick="start('quick')">1. Quick Play · Endless</button><button onclick="start('learn')">2. Learn New</button><button onclick="start('review')">3. Review Due</button><button onclick="start('weak')">4. Weak Areas</button><button onclick="chooseCategory()">5. Play by Category</button><button onclick="chooseAssociations()">6. Association Drill</button><button onclick="statistics()">7. Statistics</button><button onclick="addForm()">8. Add Question</button><button onclick="importScreen()">9. Import CSV</button><button onclick="histMenu()">10. Historia de la Física UCM</button>
+</div><div class="line"></div><div class="row"><button onclick="exportProgress()">↓ Export Progress</button><button onclick="exportBank()">↓ Export Full Bank</button><button onclick="settings()">⚙ Settings / Backup</button></div><p class="small muted">Primary data: terminal database. Existing phone data is never cleared automatically. No cross-device sync: export/import backups manually.</p>`}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function start(m, opts={}){mode=m;filter=opts;const hist=!!opts.hist;let all=D.questions.filter(hist?historic:regular);if(opts.category)all=all.filter(q=>q.category===opts.category);if(opts.subcategory)all=all.filter(q=>q.subcategory===opts.subcategory);if(opts.topic)all=all.filter(q=>q.topic===opts.topic);if(opts.minDifficulty)all=all.filter(q=>Number(q.difficulty)>=Number(opts.minDifficulty));if(opts.maxDifficulty)all=all.filter(q=>Number(q.difficulty)<=Number(opts.maxDifficulty));if(opts.datesOnly)all=all.filter(q=>q.question.startsWith('¿Qué personaje corresponde a las fechas '));
+if(m==='learn')all=all.filter(q=>!qState(q.id)||!Number(qState(q.id).times_seen));if(m==='review')all=all.filter(q=>isDue(qState(q.id))).sort((a,b)=>Number(qState(a.id)?.mastery||0)-Number(qState(b.id)?.mastery||0));if(m==='weak')all=all.filter(q=>qState(q.id)&&Number(qState(q.id).mastery)<60).sort((a,b)=>Number(qState(a.id)?.mastery||0)-Number(qState(b.id)?.mastery||0));
+if(!all.length){app.innerHTML=mainNav()+'<h2>No matching questions</h2><p class="muted">Nothing due, unseen, weak, or matching these filters.</p>';return};pool=m==='review'||m==='weak'?all:shuffle(all);session={id:crypto.randomUUID?crypto.randomUUID():String(now()),mode:m,started_at:new Date().toISOString(),correct:0,answered:0,hist};next()}
+function next(){if(!pool.length){if(mode==='quick'||mode==='category'||mode==='hist_all'){pool=shuffle(D.questions.filter(q=>(filter.hist?historic(q):regular(q))&&(!filter.category||q.category===filter.category)&&(!filter.subcategory||q.subcategory===filter.subcategory)&&(!filter.topic||q.topic===filter.topic)))}else{finish();return}};current={type:'q',data:pool.shift()};tries=0;promptUsed=false;drawQuestion()}
+function drawQuestion(message=''){let q=current.data;const hist=session?.hist;app.innerHTML=`${mainNav()}<div class="progress">${esc(mode.toUpperCase())} · Session ${session.answered} answered ${filter.subcategory?'· '+esc(filter.subcategory):''}</div><div class="line"></div><div class="row"><span class="tag">${esc(q.category)}</span><span class="tag">${esc(q.subcategory)}</span><span class="tag">Difficulty ${Number(q.difficulty)||5}/10</span></div><div class="question">${esc(q.question)}</div>${q.question_es?`<p class="muted">${esc(q.question_es)}</p>`:''}<form id="answerForm"><label for="answerInput">Your answer</label><input id="answerInput" autocomplete="off" autocapitalize="sentences" autofocus><div class="row" style="margin-top:10px"><button class="primary" type="submit">Check answer ↵</button>${q.prompt?'<button type="button" onclick="showPrompt()">Prompt / Hint</button>':''}</div></form><p class="muted" id="feedback">${esc(message)}</p>`;document.getElementById('answerForm').addEventListener('submit',e=>{e.preventDefault();submitAnswer()});document.getElementById('answerInput').focus()}
+function options(x){return String(x||'').split(/[|;/]/).map(norm).filter(Boolean)}
+function distance(a,b){const p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=p[0];p[0]=i;for(let j=1;j<=b.length;j++){let z=p[j];p[j]=Math.min(p[j]+1,p[j-1]+1,prev+(a[i-1]!==b[j-1]));prev=z}}return p[b.length]}
+function matching(input,canonical,extra='',reject=''){let s=norm(input);if(!s||options(reject).includes(s))return false;let aliases=[...options(canonical),...options(extra)];return aliases.some(a=>s===a||(a.length>=5&&s.length>=4&&distance(s,a)<=(a.length>=9&&s.length>=8?2:1)))}
+function showPrompt(){promptUsed=true;document.getElementById('feedback').innerText=current.data.prompt||'No prompt for this question'}
+function submitAnswer(){let v=document.getElementById('answerInput').value.trim();if(!v)v='I don\'t know';let q=current.data;if(matching(v,q.answer,[q.accept,q.answer_es].filter(Boolean).join('|'),q.reject)){record(true,v,tries>0)}else{tries++;if(tries===1){recordFailedAttempt(v);drawQuestion('✕ INCORRECT (attempt 1/2 recorded) · Try again; this question will be reviewed soon.');}else record(false,v,true)}}
+function mastery(s){const n=Number(s.correct_count||0),bad=Number(s.incorrect_count||0),streak=Number(s.streak||0);return Math.max(0,Math.min(100,Math.round((n/(n+bad||1))*65+Math.min(streak,7)*5)))}
+function updateQ(q,good,raw){let t=new Date(),id=q.id,s=S.q[id]||{question_id:id,times_seen:0,correct_count:0,incorrect_count:0,streak:0};s.times_seen=Number(s.times_seen||0)+1;s.correct_count=Number(s.correct_count||0)+(good?1:0);s.incorrect_count=Number(s.incorrect_count||0)+(good?0:1);s.streak=good?Number(s.streak||0)+1:0;s.mastery=mastery(s);s.last_seen=t.toISOString();let days=good?[0,1,3,7,14,30,60][Math.min(s.streak,6)]:0;s.next_review=new Date(t.getTime()+(good?days*86400000:600000)).toISOString();S.q[id]=s;S.attempts.push({question_id:id,user_answer:raw,correct:good?1:0,mode,created_at:t.toISOString(),session_id:session.id})}
+function updateA(a,good,raw){let t=new Date(),id=a.id,s=S.a[id]||{association_id:id,repetitions:0,correct_count:0,incorrect_count:0};s.repetitions=Number(s.repetitions||0)+(good?1:0);s.correct_count=Number(s.correct_count||0)+(good?1:0);s.incorrect_count=Number(s.incorrect_count||0)+(good?0:1);s.last_seen=t.toISOString();s.due_at=new Date(t.getTime()+(good?[0,1,3,7,14,30][Math.min(s.repetitions,5)]*86400000:600000)).toISOString();S.a[id]=s;S.association_attempts.push({association_id:id,user_answer:raw,correct:good?1:0,mode,created_at:t.toISOString(),session_id:session.id})}
+function recordFailedAttempt(raw){if(current.type==='q')updateQ(current.data,false,raw);else updateA(current.data,false,raw);save()}
+function keepReviewSoon(){let t=new Date(Date.now()+600000).toISOString();if(current.type==='q'){let s=S.q[current.data.id];s.streak=0;s.next_review=t;s.mastery=mastery(s)}else{let s=S.a[current.data.id];s.repetitions=0;s.due_at=t}}
+function record(good,raw,hadMiss=false){if(current.type==='q')updateQ(current.data,good,raw);else updateA(current.data,good,raw);if(hadMiss){keepReviewSoon()}session.answered++;if(good&&!hadMiss)session.correct++;save();result(good,raw,hadMiss)}
+function cards(q){let parts=[],m=parse(q.metadata_json),a=parse(q.anchors_json),w=parse(q.notable_works_json);if(Object.keys(m).length)parts.push(`<div class="section"><h3>QUICK FACTS</h3>${Object.entries(m).filter(([k,v])=>v&&typeof v!=='object').map(([k,v])=>`<p><span class="muted">${esc(k)}:</span> ${esc(v)}</p>`).join('')}</div>`);if(q.explanation||q.explanation_es)parts.push(`<div class="section"><h3>INFO</h3><p>${esc(q.explanation)}</p>${q.explanation_es?`<p>${esc(q.explanation_es)}</p>`:''}</div>`);let en=(a.en||[]),es=(a.es||[]);if(en.length||es.length)parts.push(`<div class="section"><h3>3 ANCHORS</h3><ul>${[...en,...es].slice(0,6).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>`);else if(q.connections)parts.push(`<div class="section"><h3>CONNECTIONS</h3><ul>${String(q.connections).split('|').map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>`);if(w.en?.length)parts.push(`<div class="section"><h3>NOTABLE WORKS</h3>${esc(w.en.join(' · '))}</div>`);if(q.wikipedia_url||q.wikipedia_url_es)parts.push(`<div class="links">${q.wikipedia_url?`<a target="_blank" rel="noopener" href="${esc(q.wikipedia_url)}">Wikipedia EN ↗</a>`:''}${q.wikipedia_url_es?`<a target="_blank" rel="noopener" href="${esc(q.wikipedia_url_es)}">Wikipedia ES ↗</a>`:''}</div>`);return parts.join('')}
+function result(good,raw,hadMiss=false){let q=current.data;app.innerHTML=`${mainNav()}<div class="line"></div><div class="${good?'correct':'wrong'}"><b>${good?(hadMiss?'◐ CORRECT ON SECOND ATTEMPT · REVIEW SOON':'✓ CORRECT'):'✕ INCORRECT'}</b></div><p class="answer">${esc(current.type==='q'?q.answer:(current.reverse?q.left_item:q.right_item))}</p><p class="muted small">Your answer: ${esc(raw||'I don\'t know')} · ${session.correct}/${session.answered} this session</p><div class="panel">${cards(q)||'<span class="muted">No additional context in database.</span>'}</div><button id="nextButton" class="primary" onclick="${current.type==='a'?'nextAssoc()':'next()'}">NEXT → (Enter)</button><button onclick="finish()">End session</button>`}
 
-function esc(x){return String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-function norm(s){return String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim().replace(/\s+/g," ")}
-function levenshtein(a,b){if(a===b)return 0;if(Math.abs(a.length-b.length)>2)return 99;let p=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(c[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[b.length]}
-function acceptSet(...vals){let s=new Set();for(const v of vals){if(!v)continue;for(const part of String(v).split(/[|;/]/)){let n=norm(part);if(n)s.add(n);let bits=n.split(" ");if(bits.length>=2&&bits.at(-1).length>=4)s.add(bits.at(-1))}}return s}
-function check(user,canonical,extra){let u=norm(user);if(!u)return false;let set=acceptSet(canonical,extra);if(set.has(u))return true;for(const a of set){let d=levenshtein(u,a);if(a.length>=5&&u.length>=4&&d<=1)return true;if(a.length>=9&&u.length>=8&&d<=2)return true}return false}
-function jparse(s){try{return s?JSON.parse(s):{}}catch{return {}}}
-function key(kind,id){return kind+":"+id}
-function loadState(){
-  try{
-    const raw = window.localStorage ? localStorage.getItem("trivia_state_v1") : null;
-    if(raw) STATE = JSON.parse(raw);
-  }catch(e){
-    console.warn("Local progress storage unavailable:", e);
-    STATE = null;
-  }
-  if(!STATE) STATE={q:{},a:{},attempts:[],seeded:false};
-  if(!STATE.q) STATE.q={};
-  if(!STATE.a) STATE.a={};
-  if(!Array.isArray(STATE.attempts)) STATE.attempts=[];
-  if(!STATE.seeded){
-    for(const r of (DATA.learning_state||[])) STATE.q[r.question_id]={...r};
-    for(const r of (DATA.association_learning_state||[])) STATE.a[r.association_id]={...r};
-    STATE.seeded=true;
-    saveState();
-  }
-}
-function saveState(){
-  try{
-    if(window.localStorage) localStorage.setItem("trivia_state_v1",JSON.stringify(STATE));
-  }catch(e){
-    console.warn("Could not save local progress:", e);
-  }
-}
-function now(){return Date.now()}
-function parseDate(x){let t=Date.parse(x);return Number.isFinite(t)?t:0}
-function stats(){
-  let bank=DATA.questions.length, unseen=0,due=0;
-  for(const q of DATA.questions){let s=STATE.q[q.id];if(!s||!(+s.times_seen))unseen++;if(s&&s.next_review&&parseDate(s.next_review)<=now())due++}
-  let imported=DATA.attempts||[]; let local=STATE.attempts||[];
-  let all=[...imported,...local]; let cor=all.filter(x=>+x.correct===1).length;
-  return {bank,unseen,due,cor,att:all.length,pct:all.length?100*cor/all.length:0}
-}
-function menu(){
-  let s=stats();
-  app.innerHTML=`<h1>TRIVIA TRAINER // MOBILE</h1>
-  <div class="dim">offline · terminal skin · local progress</div><div class="line"></div>
-  <div>Bank: ${s.bank} &nbsp; Unseen: ${s.unseen} &nbsp; Reviews due: ${s.due}</div>
-  <div>All-time: ${s.cor}/${s.att} (${s.pct.toFixed(1)}%)</div>
-  <div class="menu">
-  <button onclick="play('quick')">1. Quick Play</button>
-  <button onclick="play('learn')">2. Learn New</button>
-  <button onclick="play('review')">3. Review Due</button>
-  <button onclick="play('assoc')">6. Association Drill</button>
-  <button onclick="showStats()">7. Statistics</button>
-  <button onclick="exportProgress()">↓ Export Progress</button>
-  </div>
-  <div class="section"><h3>Install</h3><div class="dim small">Safari → Share → Add to Home Screen. After first load, it works offline.</div></div>`;
-}
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
-function play(mode){
- currentMode=mode;
- if(mode==="assoc"){
-   let candidates=DATA.associations.filter(a=>{let s=STATE.a[a.id];return !s||!s.due_at||parseDate(s.due_at)<=now()});
-   if(!candidates.length)candidates=DATA.associations;
-   let a=pick(candidates), rev=String(a.direction||"forward").toLowerCase()==="reverse";
-   current={kind:"a",id:a.id,raw:a,
-     q_en:rev?a.right_item:a.left_item,q_es:(rev?a.right_item_es:a.left_item_es)||"",
-     answer:rev?a.left_item:a.right_item,answer_es:(rev?a.left_item_es:a.right_item_es)||"",
-     accept:(rev?a.left_accept:a.right_accept)||a.accept||"",category:a.category||"",subcategory:a.subcategory||"",difficulty:a.difficulty||5};
- }else{
-   let qs=DATA.questions;
-   if(mode==="learn")qs=qs.filter(q=>!STATE.q[q.id]||!(+STATE.q[q.id].times_seen));
-   if(mode==="review")qs=qs.filter(q=>STATE.q[q.id]&&STATE.q[q.id].next_review&&parseDate(STATE.q[q.id].next_review)<=now());
-   if(!qs.length)qs=DATA.questions;
-   let q=pick(qs); current={kind:"q",id:q.id,raw:q,q_en:q.question,q_es:q.question_es||"",answer:q.answer,answer_es:q.answer_es||"",accept:q.accept||"",category:q.category||"",subcategory:q.subcategory||"",difficulty:q.difficulty||5};
- }
- renderQuestion();
-}
-function renderQuestion(){
- let rel=current.kind==="a"?' → ?':'';
- app.innerHTML=`<div class="top"><button onclick="menu()">← MENU</button><span class="dim small">${esc(currentMode.toUpperCase())}</span></div>
- <div class="line"></div><div class="meta">${esc(current.category)}${current.subcategory?' / '+esc(current.subcategory):''} · ${esc(current.difficulty)}/10</div>
- <div class="q">${esc(current.q_en)}${rel}</div>${current.q_es?`<div class="q es">${esc(current.q_es)}${rel}</div>`:""}
- <div class="line"></div><form onsubmit="answer(event)"><input id="ans" autocomplete="off" autocapitalize="words" placeholder="> answer / respuesta"><button class="enter" type="submit">ENTER</button></form>`;
- document.getElementById("ans").focus();
-}
-function updateLearning(correct,user){
- let t=new Date(), iso=t.toISOString();
- STATE.attempts.push({question_id:current.kind==="q"?current.id:null,association_id:current.kind==="a"?current.id:null,user_answer:user,correct:correct?1:0,mode:"mobile_"+currentMode,created_at:iso});
- if(current.kind==="q"){
-   let s=STATE.q[current.id]||{times_seen:0,correct_count:0,incorrect_count:0,streak:0};
-   s.times_seen=(+s.times_seen||0)+1;s.last_seen=iso;
-   if(correct){s.correct_count=(+s.correct_count||0)+1;s.streak=(+s.streak||0)+1;let d=s.streak===1?1:s.streak===2?3:s.streak===3?7:s.streak===4?14:30;s.next_review=new Date(t.getTime()+d*86400000).toISOString()}
-   else{s.incorrect_count=(+s.incorrect_count||0)+1;s.streak=0;s.next_review=new Date(t.getTime()+10*60000).toISOString()}
-   STATE.q[current.id]=s;
- }else{
-   let s=STATE.a[current.id]||{repetitions:0,correct_count:0,incorrect_count:0};
-   s.last_seen=iso;
-   if(correct){s.repetitions=(+s.repetitions||0)+1;s.correct_count=(+s.correct_count||0)+1;let d=s.repetitions===1?1:s.repetitions===2?3:s.repetitions===3?7:14;s.due_at=new Date(t.getTime()+d*86400000).toISOString()}
-   else{s.incorrect_count=(+s.incorrect_count||0)+1;s.due_at=new Date(t.getTime()+10*60000).toISOString()}
-   STATE.a[current.id]=s;
- }
- saveState();
-}
-function sections(r){
- let out="",m=jparse(r.metadata_json),w=jparse(r.notable_works_json),a=jparse(r.anchors_json);
- if(m&&Object.keys(m).length){let rows=Object.entries(m).filter(x=>x[1]).map(([k,v])=>`<b>${esc(k)}</b><span>${esc(v)}</span>`).join("");if(rows)out+=`<div class="section"><h3>Quick Facts / Ficha</h3><div class="factgrid">${rows}</div></div>`}
- let works=w&&w.en||[];if(works.length)out+=`<div class="section"><h3>Other Notable Works</h3>${esc(works.slice(0,5).join(" · "))}</div>`;
- let en=a&&a.en||[],es=a&&a.es||[];if(en.length||es.length){out+=`<div class="section"><h3>3 Key Anchors / 3 Anclas</h3>`;if(en.length)out+=`<span class="dim small">EN</span><ul>${en.slice(0,3).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;if(es.length)out+=`<span class="dim small">ES</span><ul>${es.slice(0,3).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;out+="</div>"}
- if(r.explanation||r.explanation_es){out+=`<div class="section"><h3>Info</h3>`;if(r.explanation)out+=`<div class="info"><span class="dim small">EN</span><br>${esc(r.explanation)}</div>`;if(r.explanation_es)out+=`<div class="info es"><span class="dim small">ES</span><br>${esc(r.explanation_es)}</div>`;out+="</div>"}
- if(r.wikipedia_url||r.wikipedia_url_es){out+=`<div class="menu">`;if(r.wikipedia_url)out+=`<button onclick="window.open('${esc(r.wikipedia_url)}','_blank')">Wikipedia EN ↗</button>`;if(r.wikipedia_url_es)out+=`<button onclick="window.open('${esc(r.wikipedia_url_es)}','_blank')">Wikipedia ES ↗</button>`;out+="</div>"}
- return out;
-}
-function answer(ev){
- ev.preventDefault();let user=document.getElementById("ans").value;
- let correct=check(user,current.answer,[current.answer_es,current.accept].filter(Boolean).join("|"));
- updateLearning(correct,user);
- let canon=esc(current.answer)+(current.answer_es&&norm(current.answer_es)!==norm(current.answer)?' / '+esc(current.answer_es):'');
- app.innerHTML=`<div class="top"><button onclick="menu()">← MENU</button><span class="dim small">${esc(currentMode.toUpperCase())}</span></div><div class="line"></div>
- ${correct?'<div class="good">✓ CORRECT</div>':'<div class="bad">✗ INCORRECT</div>'}<div class="answer">${canon}</div>
- <div class="dim small">Your answer: ${esc(user)}</div>${sections(current.raw)}
- <div class="line"></div><button class="enter" onclick="play('${esc(currentMode)}')">NEXT →</button>`;
-}
-function showStats(){
- let s=stats();app.innerHTML=`<div class="top"><button onclick="menu()">← MENU</button></div><div class="line"></div><h1>STATISTICS</h1>
- <p>Bank: ${s.bank}<br>Unseen: ${s.unseen}<br>Reviews due: ${s.due}<br>All-time: ${s.cor}/${s.att} (${s.pct.toFixed(1)}%)</p>
- <div class="section"><h3>Local device</h3><div>New attempts on this phone: ${STATE.attempts.length}</div></div>`;
-}
-function exportProgress(){
- let blob=new Blob([JSON.stringify(STATE,null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="trivia_mobile_progress.json";a.click();URL.revokeObjectURL(a.href);
-}
-async function init(){
-  app.innerHTML="<div class='dim'>Loading canon…</div>";
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.repeat||e.isComposing||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;if(!document.getElementById('nextButton'))return;if(e.target.closest('input,textarea,select,[contenteditable=true]'))return;e.preventDefault();document.getElementById('nextButton').click()});
+function finish(){if(session){session.ended_at=new Date().toISOString();S.sessions.push({...session});save()}app.innerHTML=`${mainNav()}<h2>Session complete</h2><p>${session?.correct||0}/${session?.answered||0} correct</p><div class="row"><button onclick="home()">Main menu</button>${mode==='quick'?'<button onclick="start(\'quick\')">Keep playing</button>':''}</div>`}
+function chooser(title,list,onchange){let values=[...new Set(list.filter(x=>x!=null&&x!==''))].sort((a,b)=>String(a).localeCompare(String(b)));return `<label>${title}<select id="${onchange}" onchange="refreshFilters()"><option value="">All</option>${values.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select></label>`}
+function chooseCategory(hist=false){let all=D.questions.filter(hist?historic:regular),cs=[...new Set(all.map(q=>q.category))];app.innerHTML=mainNav()+`<h2>${hist?'Study by Epoch':'Play by Category'}</h2><p class="muted">Filter by category, subcategory, topic and difficulty.</p><div class="filtergrid"><div id="catWrap">${hist?'':chooser('Category',cs,'cat')}</div><div id="subWrap"></div><div id="topicWrap"></div></div><div class="filtergrid"><label>Minimum difficulty<select id="minDif">${Array.from({length:11},(_,i)=>`<option value="${i}">${i||'Any'}</option>`).join('')}</select></label><label>Maximum difficulty<select id="maxDif">${Array.from({length:11},(_,i)=>`<option value="${i}" ${i===10?'selected':''}>${i||0}</option>`).join('')}</select></label></div><p id="available" class="muted"></p><button class="primary" onclick="launchCategory(${hist})">Start selected →</button>`;refreshFilters(hist)}
+function refreshFilters(hist=!!document.querySelector('#catWrap')?.dataset.hist){let wrap=document.getElementById('catWrap');if(!wrap)return;wrap.dataset.hist=hist?'1':'';hist=wrap.dataset.hist==='1';let c=document.getElementById('cat')?.value||'',s=document.getElementById('sub')?.value||'',all=D.questions.filter(q=>(hist?historic(q):regular(q))&&(!c||q.category===c));document.getElementById('subWrap').innerHTML=chooser('Subcategory',all.map(q=>q.subcategory),'sub');let sel=document.getElementById('sub');if([...sel.options].some(o=>o.value===s))sel.value=s;all=all.filter(q=>!sel.value||q.subcategory===sel.value);document.getElementById('topicWrap').innerHTML=chooser('Topic',all.map(q=>q.topic),'topic');document.getElementById('available').innerText=all.length+' questions in selection'}
+function launchCategory(hist){let opts={hist,category:document.getElementById('cat')?.value||'',subcategory:document.getElementById('sub')?.value||'',topic:document.getElementById('topic')?.value||'',minDifficulty:document.getElementById('minDif').value,maxDifficulty:document.getElementById('maxDif').value};start(hist?'hist_all':'category',opts)}
+function chooseAssociations(){let groups=[...new Set(D.associations.map(a=>a.subcategory).filter(Boolean))].sort();app.innerHTML=mainNav()+`<h2>Association Drill</h2><p class="muted">COUNTRY → CAPITAL · ARTWORK → ARTIST · OPERA → COMPOSER and more. Review due prioritized.</p><label>Subcategory<select id="assocCat"><option value="">All associations</option>${groups.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')}</select></label><label>Mode<select id="assocMode"><option value="due">Due first / mixed</option><option value="all">All associations</option><option value="new">Unseen only</option><option value="weak">Previously incorrect</option></select></label><button class="primary" onclick="startAssoc()">Start →</button>`}
+function startAssoc(){mode='assoc';let sub=document.getElementById('assocCat').value,m=document.getElementById('assocMode').value;filter={sub,m};let arr=D.associations.filter(a=>!sub||a.subcategory===sub);if(m==='due'){let due=arr.filter(a=>isDue(aState(a.id),'a'));arr=due.length?due:arr}else if(m==='new')arr=arr.filter(a=>!aState(a.id));else if(m==='weak')arr=arr.filter(a=>Number(aState(a.id)?.incorrect_count||0)>0);if(!arr.length){app.innerHTML=mainNav()+'<p>No matching associations.</p>';return}pool=shuffle(arr);session={id:String(now()),mode:'assoc',started_at:new Date().toISOString(),answered:0,correct:0};nextAssoc()}
+function nextAssoc(){if(!pool.length){finish();return}let a=pool.shift(),rev=String(a.direction).toLowerCase()==='reverse';current={type:'a',data:a,reverse:rev};tries=0;let left=rev?a.right_item:a.left_item;app.innerHTML=mainNav()+`<p class="progress">ASSOCIATION · ${esc(a.category)} / ${esc(a.subcategory)} · ${session.answered} answered</p><div class="question">${esc(left)} → ?</div><form id="answerForm"><input id="answerInput" placeholder="Answer" autocomplete="off"><div class="row" style="margin-top:10px"><button class="primary">Check ↵</button></div></form><p id="feedback" class="muted"></p>`;document.getElementById('answerForm').addEventListener('submit',e=>{e.preventDefault();let u=document.getElementById('answerInput').value.trim();if(!u)u='I don\'t know';let truth=rev?a.left_item:a.right_item,extra=rev?a.left_accept:a.right_accept;if(matching(u,truth,[a.accept,extra,rev?a.left_item_es:a.right_item_es].filter(Boolean).join('|')))record(true,u,tries>0);else{tries++;if(tries>=2)record(false,u,true);else{recordFailedAttempt(u);document.getElementById('feedback').innerText='Incorrect (attempt 1/2 recorded) — one more attempt.';document.getElementById('answerInput').value='';}}});document.getElementById('answerInput').focus()}
+function histMenu(){let m=metrics(true);app.innerHTML=`${mainNav()}<h2>HISTORIA DE LA FÍSICA UCM</h2><p class="muted">Separate module · never mixed into general play</p>${statTiles(m)}<div class="grid"><button onclick="start('hist_all',{hist:true})">1. Study All</button><button onclick="start('learn',{hist:true})">2. Learn New</button><button onclick="start('review',{hist:true})">3. Review Due</button><button onclick="start('weak',{hist:true})">4. Weak Areas</button><button onclick="chooseCategory(true)">5. Study by Epoch</button><button onclick="start('hist_dates',{hist:true,datesOnly:true})">6. Fechas → físico</button><button onclick="dateList()">7. Lista Fechas ↔ físico</button><button class="primary" onclick="majorMenu()">8. Major · 00–99</button></div>`}
 
-  let response;
-  try{
-    response = await fetch("./data.json", {cache:"no-store"});
-  }catch(e){
-    throw new Error("Could not fetch data.json — "+(e && e.message ? e.message : e));
-  }
+// Major is a self-contained UCM module; no entries are added to D.questions.
+const MAJOR_NAMES=[
+'Ruru','Rata','Rana','Remy','Orca','Rolly','Erizo','Rajah','Oruga','Rabo',
+'Toro','Dodo','Atún','Tom','Duck','Dolly','Taz','Tofu','Dug','Topo',
+'Noria','Nita','Nana','Nemo','Neko','Nala','Nessie','Naja','Anchoa','Nubia',
+'Mero','Mudi','Mono','Momo','Mako','Mula','Moose','Maja','Mago','Moby',
+'Ácaro','Akita','Shere Khan','Kuma','Koko','Koala','Equus','Caja','Cuagga','Okapi',
+'Loro','Aleta','León','Llama','Lucky','Lola','Lisa','Lija','Lugia','Lobo',
+'Zorro','Sid','Asno','Simio','Isco','Sly','Zazú','Sofá','Usagi','Sapo',
+'Fiera','Áfido','Fiona','Jaima','Foca','Fuli','Fosa','Fifi','Fugu','Jabu',
+'Gary','Gato','Iguana','Gamo','Gekko','Gallo','Goose','Goofy','Chucho','Guppy',
+'Perro','Pato','Poni','Puma','Paca','Baloo','Pez','Paja','Bicho','Pepe'];
+const majorNum=n=>String(n).padStart(2,'0');
+let majorDirection='forward',majorQueue=[],majorCard=null,majorTries=0,majorCompleted=0,majorCorrect=0;
+function majorState(){if(!S.major)S.major={forward:{attempts:0,correct:0},reverse:{attempts:0,correct:0},history:[]};return S.major}
+function majorMenu(){document.onkeydown=null;let m=majorState();save();app.innerHTML=`${mainNav()}<h2>HISTORIA DE LA FÍSICA UCM → MAJOR</h2><p class="muted">100 asociaciones del sistema mayor · 00–99 · independiente de las preguntas generales</p><div class="grid"><button class="primary" onclick="majorStart('forward')">Número → palabra</button><button onclick="majorStart('reverse')">Palabra → número</button><button onclick="majorStart('mixed')">Mixto · ambas direcciones</button><button onclick="majorTable()">Consultar tabla 00–99</button></div><div class="panel"><h3>ESTADÍSTICAS</h3><p>Número → palabra: ${m.forward.correct}/${m.forward.attempts} correctas</p><p>Palabra → número: ${m.reverse.correct}/${m.reverse.attempts} correctas</p><p class="small muted">Se guardan en este dispositivo y se incluyen en Export Progress.</p></div><button onclick="histMenu()">← Historia de la Física</button>`}
+function majorStart(direction){document.onkeydown=null;majorDirection=direction;majorQueue=shuffle(Array.from({length:100},(_,i)=>i));majorCompleted=0;majorCorrect=0;majorNext()}
+function majorNext(){if(!majorQueue.length){app.innerHTML=`${mainNav()}<h2>Major · ronda completada</h2><p class="answer">${majorCorrect}/100 correctas al primer intento</p><button class="primary" onclick="majorStart(majorDirection)">Nueva ronda</button> <button onclick="majorMenu()">Menú Major</button>`;return}let n=majorQueue.shift();majorCard={n,dir:majorDirection==='mixed'?(Math.random()<.5?'forward':'reverse'):majorDirection};majorTries=0;majorDraw()}
+function majorDraw(message=''){let c=majorCard,forward=c.dir==='forward',question=forward?majorNum(c.n):MAJOR_NAMES[c.n];app.innerHTML=`${mainNav()}<div class="progress">MAJOR · ${majorDirection==='mixed'?'Mixto':forward?'Número → palabra':'Palabra → número'} · ${majorCompleted}/100</div><div class="panel"><p class="muted">${forward?'¿Qué palabra corresponde a este número?':'¿Qué número corresponde a esta palabra?'}</p><div class="question" style="font-size:clamp(32px,8vw,62px);text-align:center">${esc(question)}</div><form id="majorForm"><label for="majorInput">${forward?'Animal / palabra':'Número (00–99)'}</label><input id="majorInput" ${forward?'':'inputmode="numeric"'} autocomplete="off" autocapitalize="off" autofocus required><div class="row" style="margin-top:10px"><button class="primary" type="submit">Comprobar ↵</button><button type="button" onclick="majorMenu()">Salir</button></div></form><p id="majorFeedback" class="${message?'wrong':'muted'}" role="status">${esc(message)}</p></div>`;document.getElementById('majorForm').addEventListener('submit',majorSubmit);document.getElementById('majorInput').focus()}
+function majorSubmit(e){e.preventDefault();let c=majorCard,v=document.getElementById('majorInput').value.trim();if(!v)return;let good=c.dir==='forward'?norm(v)===norm(MAJOR_NAMES[c.n]):/^\d{1,2}$/.test(v)&&Number(v)===c.n;if(good){majorResult(true,v);return}majorTries++;if(majorTries>=2){majorResult(false,v);return}majorDraw('Incorrecto · queda un segundo intento.')}
+function majorResult(good,v){let c=majorCard,m=majorState(),stat=m[c.dir];stat.attempts++;if(good)stat.correct++;m.history.push({number:c.n,direction:c.dir,correct:good,tries:majorTries+1,date:new Date().toISOString()});if(m.history.length>5000)m.history=m.history.slice(-5000);majorCompleted++;if(good&&majorTries===0)majorCorrect++;save();let answer=c.dir==='forward'?MAJOR_NAMES[c.n]:majorNum(c.n);app.innerHTML=`${mainNav()}<div class="progress">MAJOR · ${majorCompleted}/100</div><div class="panel"><h2 class="${good?'correct':'wrong'}">${good?'✓ Correcto':'✗ Incorrecto'}</h2><p class="answer">${majorNum(c.n)} → ${esc(MAJOR_NAMES[c.n])}</p><p class="muted">${good&&majorTries?'Acertado al segundo intento.':!good?'Respuesta correcta: '+esc(answer):'Acertado al primer intento.'}</p><button class="primary" id="majorContinue">Siguiente → ↵</button> <button onclick="majorMenu()">Salir</button></div>`;document.getElementById('majorContinue').focus();document.getElementById('majorContinue').onclick=majorNext;document.onkeydown=function(ev){if(ev.key==='Enter'&&document.getElementById('majorContinue')){ev.preventDefault();document.onkeydown=null;majorNext()}}}
+function majorTable(){document.onkeydown=null;app.innerHTML=`${mainNav()}<h2>Major · tabla 00–99</h2><p class="muted">Correspondencias de tu imagen original. Se interpreta la última casilla de 30–39 como 39 → Moby.</p><div class="row"><button class="primary" onclick="majorMenu()">← Menú Major</button><button onclick="majorStart('mixed')">Practicar mixto</button></div><div class="panel" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px">${MAJOR_NAMES.map((name,i)=>`<div style="border-bottom:1px solid var(--edge);padding:5px"><b>${majorNum(i)}</b> · ${esc(name)}</div>`).join('')}</div>`}
 
-  if(!response.ok){
-    throw new Error("data.json returned HTTP "+response.status);
-  }
-
-  let raw;
-  try{
-    raw = await response.text();
-  }catch(e){
-    throw new Error("Could not read data.json — "+(e && e.message ? e.message : e));
-  }
-
-  try{
-    DATA = JSON.parse(raw);
-  }catch(e){
-    throw new Error("data.json is not valid JSON — "+(e && e.message ? e.message : e));
-  }
-
-  if(!DATA || !Array.isArray(DATA.questions) || !Array.isArray(DATA.associations)){
-    throw new Error("data.json loaded, but its trivia structure is invalid.");
-  }
-
-  loadState();
-  menu();
-
-  // Offline support is optional. Never let a Safari service-worker problem
-  // prevent the actual trivia app from loading.
-  try{
-    if("serviceWorker" in navigator && location.protocol === "https:"){
-      setTimeout(function(){
-        try{
-          navigator.serviceWorker.register("./sw.js").catch(function(e){
-            console.warn("Service worker registration skipped:", e);
-          });
-        }catch(e){
-          console.warn("Service worker unavailable:", e);
-        }
-      }, 500);
-    }
-  }catch(e){
-    console.warn("Offline setup skipped:", e);
-  }
-}
-
-init().catch(function(e){
-  console.error(e);
-  app.innerHTML="<h1>LOAD ERROR</h1>"+
-    "<div class='bad'>"+esc(e && e.message ? e.message : e)+"</div>"+
-    "<div class='section dim small'>Reload once after replacing index.html. If this message remains, send me exactly this new error text.</div>";
-});
-</script>
-</body></html>
+function dateList(){let arr=D.questions.filter(q=>historic(q)&&q.topic==='Fechas → personaje');const rx=/¿Qué personaje corresponde a las fechas (.+?)\?/;let vals=arr.map(q=>({dates:q.question.match(rx)?.[1]||q.question,q})).sort((a,b)=>a.dates.localeCompare(b.dates,'es',{numeric:true}));app.innerHTML=mainNav()+`<h2>Lista Fechas ↔ físico (${vals.length})</h2><label>Search date / person / epoch<input id="dateSearch" placeholder="e.g. 1642, Newton, Grecia"></label><div id="dates" class="scroll"></div>`;document.getElementById('dateSearch').addEventListener('input',drawDates);function drawDates(){let v=norm(document.getElementById('dateSearch').value);let matches=vals.filter(o=>norm(o.dates+' '+o.q.answer+' '+o.q.subcategory).includes(v));document.getElementById('dates').innerHTML=matches.map(o=>`<details class="panel"><summary><b>${esc(o.dates)}</b> — ${esc(o.q.answer)} <span class="muted small">${esc(o.q.subcategory)}</span></summary><p>${esc(o.q.explanation)}</p>${cards(o.q)}</details>`).join('')||'No matches'}drawDates()}
+function statistics(){let all=[...D.attempts,...S.attempts],assoc=[...D.association_attempts,...S.association_attempts],cats=[...new Set(D.questions.map(q=>q.category))].sort();const rows=cats.map(cat=>{let ids=new Set(D.questions.filter(q=>q.category===cat).map(q=>q.id)),aa=all.filter(a=>ids.has(Number(a.question_id))),n=D.questions.filter(q=>ids.has(q.id)).length;return `<tr><td>${esc(cat)}</td><td>${n}</td><td>${aa.length}</td><td>${aa.length?Math.round(aa.filter(a=>Number(a.correct)).length/aa.length*100)+'%':'—'}</td></tr>`}).join('');let weak=D.questions.filter(q=>qState(q.id)&&Number(qState(q.id).mastery)<60).sort((a,b)=>Number(qState(a.id).mastery)-Number(qState(b.id).mastery)).slice(0,30);app.innerHTML=mainNav()+`<h2>Statistics</h2>${statTiles(metrics())}<p>History of Physics: ${metrics(true).total} questions · ${metrics(true).due} due</p><div class="kpis"><div class="kpi">Association attempts<strong>${assoc.length}</strong></div><div class="kpi">Association accuracy<strong>${assoc.length?Math.round(100*assoc.filter(a=>Number(a.correct)).length/assoc.length):0}%</strong></div><div class="kpi">Sessions<strong>${D.sessions.length+S.sessions.length}</strong></div><div class="kpi">New local attempts<strong>${S.attempts.length}</strong></div></div><h3>PER CATEGORY</h3><table><thead><tr><th>Category</th><th>Bank</th><th>Attempts</th><th>Accuracy</th></tr></thead><tbody>${rows}</tbody></table><h3>LOWEST MASTERY · 30</h3><div class="scroll">${weak.map(q=>`<p><span class="tag">${Number(qState(q.id).mastery)||0}%</span> ${esc(q.answer)} <span class="muted">${esc(q.category)}</span></p>`).join('')}</div>`}
+function addForm(){app.innerHTML=mainNav()+`<h2>Add Question</h2><p class="muted">Adds locally to this device. Export Full Bank to preserve changes for deployment.</p><form id="addQ"><label>Question<input name="question" required></label><label>Answer<input name="answer" required></label><div class="filtergrid"><label>Category<input name="category" value="History" required></label><label>Subcategory<input name="subcategory"></label><label>Topic<input name="topic"></label></div><label>Difficulty (1–10)<input name="difficulty" type="number" min="1" max="10" value="5"></label><label>Accepted aliases, separated by |<input name="accept"></label><label>INFO / Explanation<textarea name="explanation"></textarea></label><label>3 ANCHORS (one per line)<textarea name="anchors"></textarea></label><button class="primary">Add question</button></form><p id="addMsg"></p>`;document.getElementById('addQ').addEventListener('submit',e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target).entries());let a=o.anchors.split('\n').map(s=>s.trim()).filter(Boolean);delete o.anchors;let q={...o,id:nextId(),difficulty:Math.max(1,Math.min(10,Number(o.difficulty)||5)),anchors_json:JSON.stringify({en:a.slice(0,3),es:[]}),connections:a.join('|'),question_es:'',answer_es:'',explanation_es:'',metadata_json:'{}',notable_works_json:'{}'};D.questions.push(q);S.customQuestions.push(q);save();document.getElementById('addMsg').textContent='✓ Added locally: '+q.id;e.target.reset()})}
+function nextId(){return Math.max(0,...D.questions.map(q=>Number(q.id)||0))+1}
+function csvParse(text){let rows=[],row=[],val='',quoted=false;for(let i=0;i<text.length;i++){let c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){val+='"';i++}else quoted=!quoted}else if(c===','&&!quoted){row.push(val);val=''}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(val);if(row.some(s=>s.trim()))rows.push(row);row=[];val=''}else val+=c}row.push(val);if(row.some(s=>s.trim()))rows.push(row);return rows}
+function importScreen(){app.innerHTML=mainNav()+`<h2>Import CSV</h2><p>Import question rows (with headers question, answer, category, subcategory, etc.). Existing question+answer pairs are skipped. Changes are local until exported.</p><input type="file" accept=".csv,text/csv" id="csvFile"><div class="row" style="margin-top:10px"><button class="primary" onclick="importCSV()">Import CSV</button><button onclick="exportBank()">Export current bank</button></div><p id="importMsg"></p>`}
+async function importCSV(){let f=document.getElementById('csvFile').files[0];if(!f)return;let rows=csvParse(await f.text()),heads=rows.shift().map(s=>s.toLowerCase().trim()),qi=heads.indexOf('question'),ai=heads.indexOf('answer');if(qi<0||ai<0){document.getElementById('importMsg').textContent='Missing question and/or answer header';return}let seen=new Set(D.questions.map(q=>norm(q.question)+'|'+norm(q.answer)));let added=0,skipped=0;for(let cells of rows){let o={};heads.forEach((h,i)=>o[h]=cells[i]||'');if(!o.question?.trim()||!o.answer?.trim()){skipped++;continue}let k=norm(o.question)+'|'+norm(o.answer);if(seen.has(k)){skipped++;continue}seen.add(k);let q={...o,id:nextId(),difficulty:Math.max(1,Math.min(10,Number(o.difficulty)||5)),metadata_json:'{}',anchors_json:JSON.stringify({en:(o.connections||'').split('|').filter(Boolean).slice(0,3),es:[]}),notable_works_json:'{}'};D.questions.push(q);S.customQuestions.push(q);added++}save();document.getElementById('importMsg').textContent=`✓ Imported ${added}; skipped ${skipped}. Export Full Bank to carry these additions to GitHub.`}
+function download(filename,obj){let b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(u),3000)}
+function exportProgress(){download('trivia_progress_v2.json',S)}
+function exportBank(){let merged={...D,learning_state:Object.values(S.q),association_learning_state:Object.values(S.a),attempts:[...D.attempts,...S.attempts],association_attempts:[...D.association_attempts,...S.association_attempts],sessions:[...D.sessions,...S.sessions]};download('trivia_complete_export.json',merged)}
+function settings(){app.innerHTML=mainNav()+`<h2>Settings & Backup</h2><p>Progress is stored in this browser only; use Export Progress before clearing site data or switching devices.</p><div class="row"><button onclick="exportProgress()">↓ Export Progress</button><button onclick="exportBank()">↓ Export Full Bank</button></div><h3>RESTORE A PREVIOUS V2 BACKUP</h3><input type="file" accept=".json" id="restoreFile"><button onclick="restore()">Restore backup (replaces local V2 state)</button><p class="wrong">This only replaces local progress and local additions, not the terminal source data.</p><p id="restoreMsg"></p>`}
+async function restore(){let f=document.getElementById('restoreFile').files[0];if(!f)return;try{let x=JSON.parse(await f.text());if(x.version!==2||!x.q||!x.a||!Array.isArray(x.attempts))throw Error('Not a V2 progress backup');if(!confirm('Replace this device’s local V2 progress with the selected backup?'))return;localStorage.setItem(STORE,JSON.stringify(x));location.reload()}catch(e){document.getElementById('restoreMsg').textContent='Invalid backup: '+e.message}}
+async function init(){try{let r=await fetch('./data.json',{cache:'no-store'});if(!r.ok)throw Error('data.json HTTP '+r.status);D=await r.json();if(!Array.isArray(D.questions)||!Array.isArray(D.associations))throw Error('Invalid bank structure');initialize();home();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(console.warn)}catch(e){app.innerHTML=`<h1>LOAD ERROR</h1><p class="wrong">${esc(e.message)}</p>`}}init();
+</script></body></html>
